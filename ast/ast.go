@@ -3,6 +3,7 @@ package ast
 import (
 	"bytes"
 	"monkey/token"
+	"strings"
 )
 
 type Node interface {
@@ -240,6 +241,61 @@ func (n *IfExpression) String() string {
 		out.WriteString("else ")
 		out.WriteString(n.Alternative.String())
 	}
+
+	return out.String()
+}
+
+// 関数リテラル
+type FunctionLiteral struct {
+	Token      token.Token // 'fn' トークン
+	Parameters []*Identifier
+	Body       *BlockStatement
+}
+
+func (n *FunctionLiteral) expressionNode() {}
+func (n *FunctionLiteral) TokenLiteral() string {
+	return n.Token.Literal
+}
+func (n *FunctionLiteral) String() string {
+	var out bytes.Buffer
+
+	params := []string{}
+	for _, p := range n.Parameters {
+		params = append(params, p.String())
+	}
+
+	out.WriteString(n.TokenLiteral())
+	out.WriteString("(")
+	out.WriteString(strings.Join(params, ", "))
+	out.WriteString(")")
+	out.WriteString(n.Body.String())
+
+	return out.String()
+}
+
+// 関数呼び出し
+type CallExpression struct {
+	Token     token.Token // '('トークン
+	Function  Expression
+	Arguments []Expression
+}
+
+func (n *CallExpression) expressionNode() {}
+func (n *CallExpression) TokenLiteral() string {
+	return n.Token.Literal
+}
+func (n *CallExpression) String() string {
+	var out bytes.Buffer
+
+	args := []string{}
+	for _, a := range n.Arguments {
+		args = append(args, a.String())
+	}
+
+	out.WriteString(n.Function.String())
+	out.WriteString("(")
+	out.WriteString(strings.Join(args, ", "))
+	out.WriteString(")")
 
 	return out.String()
 }
