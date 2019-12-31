@@ -1,11 +1,13 @@
 package ast
 
 import (
+	"bytes"
 	"monkey/token"
 )
 
 type Node interface {
 	TokenLiteral() string
+	String() string
 }
 
 // 文
@@ -32,6 +34,16 @@ func (p *Program) TokenLiteral() string {
 	}
 }
 
+func (p *Program) String() string {
+	var out bytes.Buffer
+
+	for _, s := range p.Statements {
+		out.WriteString(s.String())
+	}
+
+	return out.String()
+}
+
 // let文
 type LetStatement struct {
 	Token token.Token // token.LET
@@ -43,16 +55,20 @@ func (ls *LetStatement) statementNode() {}
 func (ls *LetStatement) TokenLiteral() string {
 	return ls.Token.Literal
 }
+func (ls *LetStatement) String() string {
+	var out bytes.Buffer
 
-// 識別子 式
-type Identifier struct {
-	Token token.Token // token.IDENT
-	Value string
-}
+	out.WriteString(ls.TokenLiteral() + " ")
+	out.WriteString(ls.Name.String())
+	out.WriteString(" = ")
 
-func (i *Identifier) expressionNode() {}
-func (i *Identifier) TokenLiteral() string {
-	return i.Token.Literal
+	if ls.Value != nil {
+		out.WriteString(ls.Value.String())
+	}
+
+	out.WriteString(";")
+
+	return out.String()
 }
 
 // return文
@@ -64,4 +80,120 @@ type ReturnStatement struct {
 func (rs *ReturnStatement) statementNode() {}
 func (rs *ReturnStatement) TokenLiteral() string {
 	return rs.Token.Literal
+}
+func (rs *ReturnStatement) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(rs.TokenLiteral() + " ")
+
+	if rs.Value != nil {
+		out.WriteString(rs.Value.String())
+	}
+
+	out.WriteString(";")
+
+	return out.String()
+}
+
+// 式文
+type ExpressionStatement struct {
+	Token      token.Token // 式の最初のトークン
+	Expression Expression
+}
+
+func (es *ExpressionStatement) statementNode() {}
+func (es *ExpressionStatement) TokenLiteral() string {
+	return es.Token.Literal
+}
+func (es *ExpressionStatement) String() string {
+	if es.Expression != nil {
+		return es.Expression.String()
+	}
+
+	return ""
+}
+
+// 識別子
+type Identifier struct {
+	Token token.Token // token.IDENT
+	Value string
+}
+
+func (i *Identifier) expressionNode() {}
+func (i *Identifier) TokenLiteral() string {
+	return i.Token.Literal
+}
+func (i *Identifier) String() string {
+	return i.Value
+}
+
+// 整数リテラル
+type IntegerLiteral struct {
+	Token token.Token
+	Value int64
+}
+
+func (n *IntegerLiteral) expressionNode() {}
+func (n *IntegerLiteral) TokenLiteral() string {
+	return n.Token.Literal
+}
+func (n *IntegerLiteral) String() string {
+	return n.Token.Literal
+}
+
+type PrefixExpression struct {
+	Token    token.Token // 前置トークン ex) !
+	Operator string
+	Right    Expression
+}
+
+func (n *PrefixExpression) expressionNode() {}
+func (n *PrefixExpression) TokenLiteral() string {
+	return n.Token.Literal
+}
+func (n *PrefixExpression) String() string {
+	var out bytes.Buffer
+	out.WriteString("(")
+	out.WriteString(n.Operator)
+	out.WriteString(n.Right.String())
+	out.WriteString(")")
+
+	return out.String()
+}
+
+type InfixExpression struct {
+	Token    token.Token // 中値トークン ex) +
+	Left     Expression
+	Operator string
+	Right    Expression
+}
+
+func (n *InfixExpression) expressionNode() {}
+func (n *InfixExpression) TokenLiteral() string {
+	return n.Token.Literal
+}
+func (n *InfixExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("(")
+	out.WriteString(n.Left.String())
+	out.WriteString(" " + n.Operator + " ")
+	out.WriteString(n.Right.String())
+	out.WriteString(")")
+
+	return out.String()
+}
+
+// 真偽
+type Boolean struct {
+	Token token.Token
+	Value bool
+}
+
+func (n *Boolean) expressionNode() {}
+func (n *Boolean) TokenLiteral() string {
+	return n.Token.Literal
+}
+func (n *Boolean) String() string {
+	return n.Token.Literal
 }

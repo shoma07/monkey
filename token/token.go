@@ -24,7 +24,7 @@ const (
 	BANG     = "!"
 	ASTERISK = "*"
 	SLASH    = "/"
-	// 論理演算子
+	// 比較演算子
 	EQ     = "=="
 	NOT_EQ = "!="
 	LT     = "<"
