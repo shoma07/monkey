@@ -142,6 +142,20 @@ func (n *IntegerLiteral) String() string {
 	return n.Token.Literal
 }
 
+// 文字列リテラル
+type StringLiteral struct {
+	Token token.Token // token.STRING
+	Value string
+}
+
+func (n *StringLiteral) expressionNode() {}
+func (n *StringLiteral) TokenLiteral() string {
+	return n.Token.Literal
+}
+func (n *StringLiteral) String() string {
+	return n.Token.Literal
+}
+
 type PrefixExpression struct {
 	Token    token.Token // 前置トークン ex) !
 	Operator string

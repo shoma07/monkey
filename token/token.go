@@ -12,8 +12,9 @@ const (
 	EOF     = "EOF"      // ファイル終端
 
 	// 識別子, リテラル
-	IDENT = "IDENT" // ユーザ定義識別子
-	INT   = "INT"   // 数値リテラル
+	IDENT  = "IDENT"  // ユーザ定義識別子
+	INT    = "INT"    // 数値リテラル
+	STRING = "STRING" // 文字列リテラル
 
 	// 演算子
 	// 代入演算子
