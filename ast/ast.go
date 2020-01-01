@@ -78,17 +78,17 @@ type ReturnStatement struct {
 	Value Expression
 }
 
-func (rs *ReturnStatement) statementNode() {}
-func (rs *ReturnStatement) TokenLiteral() string {
-	return rs.Token.Literal
+func (n *ReturnStatement) statementNode() {}
+func (n *ReturnStatement) TokenLiteral() string {
+	return n.Token.Literal
 }
-func (rs *ReturnStatement) String() string {
+func (n *ReturnStatement) String() string {
 	var out bytes.Buffer
 
-	out.WriteString(rs.TokenLiteral() + " ")
+	out.WriteString(n.TokenLiteral() + " ")
 
-	if rs.Value != nil {
-		out.WriteString(rs.Value.String())
+	if n.Value != nil {
+		out.WriteString(n.Value.String())
 	}
 
 	out.WriteString(";")
