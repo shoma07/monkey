@@ -313,3 +313,51 @@ func (n *CallExpression) String() string {
 
 	return out.String()
 }
+
+// 配列リテラル
+type ArrayLiteral struct {
+	Token    token.Token // '[' トークン
+	Elements []Expression
+}
+
+func (n *ArrayLiteral) expressionNode() {}
+func (n *ArrayLiteral) TokenLiteral() string {
+	return n.Token.Literal
+}
+func (n *ArrayLiteral) String() string {
+	var out bytes.Buffer
+
+	elements := []string{}
+	for _, el := range n.Elements {
+		elements = append(elements, el.String())
+	}
+
+	out.WriteString("[")
+	out.WriteString(strings.Join(elements, ", "))
+	out.WriteString("]")
+
+	return out.String()
+}
+
+// 添字式
+type IndexExpression struct {
+	Token token.Token // '[' トークン
+	Left  Expression
+	Index Expression
+}
+
+func (n *IndexExpression) expressionNode() {}
+func (n *IndexExpression) TokenLiteral() string {
+	return n.Token.Literal
+}
+func (n *IndexExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("(")
+	out.WriteString(n.Left.String())
+	out.WriteString("[")
+	out.WriteString(n.Index.String())
+	out.WriteString("])")
+
+	return out.String()
+}
