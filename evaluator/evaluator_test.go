@@ -103,6 +103,7 @@ func TestEvalStringExpression(t *testing.T) {
 		expected string
 	}{
 		{`"hello world"`, "hello world"},
+		{`"Hello" + " " + "World!"`, "Hello World!"},
 	}
 
 	for _, tt := range tests {
@@ -223,10 +224,10 @@ func TestErrorHandling(t *testing.T) {
 	}{
 		{"5 + true", "type mismatch: INTEGER + BOOLEAN"},
 		{"5 + true; 5;", "type mismatch: INTEGER + BOOLEAN"},
-		{"-true", "unkown operator: -BOOLEAN"},
-		{"true + false", "unkown operator: BOOLEAN + BOOLEAN"},
-		{"5; true + false; 5", "unkown operator: BOOLEAN + BOOLEAN"},
-		{"if (10 > 1) { true + false; }", "unkown operator: BOOLEAN + BOOLEAN"},
+		{"-true", "unknown operator: -BOOLEAN"},
+		{"true + false", "unknown operator: BOOLEAN + BOOLEAN"},
+		{"5; true + false; 5", "unknown operator: BOOLEAN + BOOLEAN"},
+		{"if (10 > 1) { true + false; }", "unknown operator: BOOLEAN + BOOLEAN"},
 		{
 			`
 			if (10 > 1) {
@@ -236,9 +237,10 @@ func TestErrorHandling(t *testing.T) {
 				return 1;
 			}
 			`,
-			"unkown operator: BOOLEAN + BOOLEAN",
+			"unknown operator: BOOLEAN + BOOLEAN",
 		},
 		{"foobar", "identifier not found: foobar"},
+		{`"Hello" - "World"`, "unknown operator: STRING - STRING"},
 	}
 
 	for _, tt := range tests {
