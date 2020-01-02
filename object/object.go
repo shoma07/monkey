@@ -3,6 +3,7 @@ package object
 import (
 	"bytes"
 	"fmt"
+	"hash/fnv"
 	"monkey/ast"
 	"strings"
 )
@@ -19,6 +20,7 @@ const (
 	FUNCTION_OBJ     = "FUNCTION"
 	BUILTIN_OBJ      = "BUILTIN"
 	ARRAY_OBJ        = "ARRAY"
+	HASH_OBJ         = "HASH"
 )
 
 type Object interface {
@@ -37,6 +39,9 @@ func (o *Integer) Type() ObjectType {
 func (o *Integer) Inspect() string {
 	return fmt.Sprintf("%d", o.Value)
 }
+func (o *Integer) HashKey() HashKey {
+	return HashKey{Type: o.Type(), Value: uint64(o.Value)}
+}
 
 // 文字列
 type String struct {
@@ -49,6 +54,12 @@ func (o *String) Type() ObjectType {
 func (o *String) Inspect() string {
 	return o.Value
 }
+func (o *String) HashKey() HashKey {
+	h := fnv.New64a()
+	h.Write([]byte(o.Value))
+
+	return HashKey{Type: o.Type(), Value: h.Sum64()}
+}
 
 // 真偽値
 type Boolean struct {
@@ -60,6 +71,17 @@ func (o *Boolean) Type() ObjectType {
 }
 func (o *Boolean) Inspect() string {
 	return fmt.Sprintf("%t", o.Value)
+}
+func (o *Boolean) HashKey() HashKey {
+	var value uint64
+
+	if o.Value {
+		value = 1
+	} else {
+		value = 0
+	}
+
+	return HashKey{Type: o.Type(), Value: value}
 }
 
 // null
@@ -156,6 +178,51 @@ func (o *Array) Inspect() string {
 	out.WriteString("[")
 	out.WriteString(strings.Join(elements, ", "))
 	out.WriteString("]")
+
+	return out.String()
+}
+
+// ハッシュのキーとして使用できるObjectとかどうか
+type Hashable interface {
+	HashKey() HashKey
+}
+
+type HashKey struct {
+	Type  ObjectType
+	Value uint64
+}
+
+type HashPair struct {
+	Key   Object
+	Value Object
+}
+
+type Hash struct {
+	Pairs map[HashKey]HashPair
+}
+
+func (o *Hash) Type() ObjectType {
+	return HASH_OBJ
+}
+
+func (o *Hash) Inspect() string {
+	var out bytes.Buffer
+
+	pairs := []string{}
+	for _, pair := range o.Pairs {
+		pairs = append(
+			pairs,
+			fmt.Sprintf(
+				"%s: %s",
+				pair.Key.Inspect(),
+				pair.Value.Inspect(),
+			),
+		)
+	}
+
+	out.WriteString("{")
+	out.WriteString(strings.Join(pairs, ", "))
+	out.WriteString("}")
 
 	return out.String()
 }
